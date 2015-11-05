@@ -7,6 +7,8 @@ Grove sensor 6 Axis Accelerometer And Gyroscope using LSM6DS3
 --------------------- | -------------
 HighLevelExample.ino  | Using class LSM6DS3
 LowLevelExample.ino   | Using class LSM6DS3Core
+Pedometer.ino         | A demo for making a pedometer 
+FreeFallDetect.ino    | Detect object free falling, like a falling football
 
 * API
 

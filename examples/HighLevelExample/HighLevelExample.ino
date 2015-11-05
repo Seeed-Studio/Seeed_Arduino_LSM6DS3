@@ -1,5 +1,5 @@
 /*****************************************************************************/	
-//  BasicExample.ino
+//  HighLevelExample.ino
 //  Hardware:      Grove - 6-Axis Accelerometer&Gyroscope
 //	Arduino IDE:   Arduino-1.65
 //	Author:	       Lambor	
