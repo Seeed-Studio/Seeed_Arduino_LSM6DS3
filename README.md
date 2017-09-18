@@ -1,17 +1,21 @@
-# Accelerometer_And_Gyroscope_LSM6DS3
+Accelerometer_And_Gyroscope_LSM6DS3
+---------------------------------
+
 Grove sensor 6 Axis Accelerometer And Gyroscope using LSM6DS3, [get the module here](https://www.seeedstudio.com/Grove-6-Axis-Accelerometer%26Gyroscope-p-2606.html)
 
-## Usage
+Example
+------
+
+Example           | Feature
+----------------- | ----------------------------------------------------
+HighLevelExample  | Using class LSM6DS3
+LowLevelExample   | Using class LSM6DS3Core
+Pedometer         | A demo for making a pedometer 
+FreeFallDetect    | Detect object free falling, like a falling football
 
 
-    Example           | Feature
---------------------- | -------------
-HighLevelExample.ino  | Using class LSM6DS3
-LowLevelExample.ino   | Using class LSM6DS3Core
-Pedometer.ino         | A demo for making a pedometer 
-FreeFallDetect.ino    | Detect object free falling, like a falling football
-
-* API
+API
+------
 
 Methods in class LSM6DS3   | Methods in class LSM6DS3Core
 -------------------------- | -------------
@@ -34,6 +38,7 @@ calcGyro                   | *
 calcAccel                  | *
 
 ----
+
 
 License Information
 -------------------
