@@ -1,0 +1,36 @@
+  
+#######################################
+# Syntax Coloring Map For 
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+readRawAccelX	KEYWORD2
+readRawAccelY	KEYWORD2
+readRawAccelZ	KEYWORD2
+readRawGyroX	KEYWORD2
+readRawGyroY	KEYWORD2
+readRawGyroZ	KEYWORD2
+readFloatAccelX	KEYWORD2
+readFloatAccelY	KEYWORD2
+readFloatAccelZ	KEYWORD2
+readFloatGyroX	KEYWORD2
+readFloatGyroY	KEYWORD2
+readFloatGyroZ	KEYWORD2
+readRawTemp	KEYWORD2
+readTempC	KEYWORD2
+readTempF	KEYWORD2
+calcGyro	KEYWORD2
+calcAccel	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
