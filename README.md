@@ -1,7 +1,9 @@
 Accelerometer_And_Gyroscope_LSM6DS3
 ---------------------------------
 
-Grove sensor 6 Axis Accelerometer And Gyroscope using LSM6DS3, [get the module here](https://www.seeedstudio.com/Grove-6-Axis-Accelerometer%26Gyroscope-p-2606.html)
+![](https://statics3.seeedstudio.com/images/product/105020012%203.jpg)
+
+More detail refer to [wiki page](http://wiki.seeedstudio.com/Grove-6-Axis_AccelerometerAndGyroscope/) and [product page](https://www.seeedstudio.com/Grove-6-Axis-Accelerometer%26Gyroscope-p-2606.html)
 
 Example
 ------
