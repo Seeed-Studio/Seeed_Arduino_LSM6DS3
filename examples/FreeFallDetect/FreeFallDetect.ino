@@ -30,7 +30,6 @@
 
 #include "SparkFunLSM6DS3.h"
 #include "Wire.h"
-#include "SPI.h"
 
 #define CLEAR_STEP      true
 #define NOT_CLEAR_STEP  false 

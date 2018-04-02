@@ -30,7 +30,6 @@
 
 #include "SparkFunLSM6DS3.h"
 #include "Wire.h"
-#include "SPI.h"
 
 //Create a instance of class LSM6DS3
 LSM6DS3 myIMU( I2C_MODE, 0x6A );  //I2C device address 0x6A
