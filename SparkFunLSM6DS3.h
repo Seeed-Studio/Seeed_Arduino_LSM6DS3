@@ -186,7 +186,9 @@ private:
 
 
 
-
+/****************** Device ID *********************/
+#define LSM6DS3_ACC_GYRO_WHO_AM_I  			0X69
+#define LSM6DS3_C_ACC_GYRO_WHO_AM_I         0x6A
 
 
 /************** Device Register  *******************/

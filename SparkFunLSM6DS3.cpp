@@ -113,10 +113,11 @@ status_t LSM6DS3Core::beginCore(void)
 	uint8_t readCheck;
 	
     readRegister(&readCheck, LSM6DS3_ACC_GYRO_WHO_AM_I_REG);
-	if( readCheck != 0x69 )
+	if(!(readCheck == LSM6DS3_ACC_GYRO_WHO_AM_I || readCheck == LSM6DS3_C_ACC_GYRO_WHO_AM_I))
 	{		
-        returnError = IMU_HW_ERROR;
+		returnError = IMU_HW_ERROR;
 	}
+	
 
 	return returnError;
 
@@ -543,13 +544,17 @@ status_t LSM6DS3::begin()
 	//Write the byte
 	writeRegister(LSM6DS3_ACC_GYRO_CTRL2_G, dataToWrite);
 
-	//Setup the internal temperature sensor
-	if ( settings.tempEnabled == 1) {
-	}
-
 	//Return WHO AM I reg  //Not no mo!
 	uint8_t result;
 	readRegister(&result, LSM6DS3_ACC_GYRO_WHO_AM_I_REG);
+
+	//Setup the internal temperature sensor
+	if ( settings.tempEnabled == 1) {
+		if(result == LSM6DS3_ACC_GYRO_WHO_AM_I) //0x69 LSM6DS3
+			settings.tempSensitivity = 16; // Sensitivity to scale 16
+		else if(result == LSM6DS3_C_ACC_GYRO_WHO_AM_I) //0x6A LSM6dS3-C
+			settings.tempSensitivity = 256; // Sensitivity to scale 256
+	}
 
 	return returnError;
 }
@@ -733,7 +738,7 @@ int16_t LSM6DS3::readRawTemp( void )
 
 float LSM6DS3::readTempC( void )
 {
-	float output = (float)readRawTemp() / 16; //divide by 16 to scale
+	float output = (float)readRawTemp() / settings.tempSensitivity; //divide by tempSensitivity to scale
 	output += 25; //Add 25 degrees to remove offset
 
 	return output;
@@ -742,7 +747,7 @@ float LSM6DS3::readTempC( void )
 
 float LSM6DS3::readTempF( void )
 {
-	float output = (float)readRawTemp() / 16; //divide by 16 to scale
+	float output = (float)readRawTemp() / settings.tempSensitivity; //divide by tempSensitivity to scale
 	output += 25; //Add 25 degrees to remove offset
 	output = (output * 9) / 5 + 32;
 
