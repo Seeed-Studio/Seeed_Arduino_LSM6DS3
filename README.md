@@ -1,4 +1,4 @@
-Accelerometer_And_Gyroscope_LSM6DS3
+Accelerometer_And_Gyroscope_LSM6DS3  [![Build Status](https://travis-ci.com/Seeed-Studio/Accelerometer_And_Gyroscope_LSM6DS3.svg?branch=master)](https://travis-ci.com/Seeed-Studio/Accelerometer_And_Gyroscope_LSM6DS3)
 ---------------------------------
 
 ![](https://statics3.seeedstudio.com/images/product/105020012%203.jpg)
