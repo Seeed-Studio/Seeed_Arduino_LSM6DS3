@@ -76,7 +76,7 @@ status_t LSM6DS3Core::beginCore(void) {
             SPI.setClockDivider(SPI_CLOCK_DIV4);
             // Data is read and written MSb first.
 #ifdef ESP32
-	    	SPI.setBitOrder(SPI_MSBFIRST);
+            SPI.setBitOrder(SPI_MSBFIRST);
 #else
             SPI.setBitOrder(MSBFIRST);
 #endif
