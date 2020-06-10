@@ -75,7 +75,11 @@ status_t LSM6DS3Core::beginCore(void) {
             // Maximum SPI frequency is 10MHz, could divide by 2 here:
             SPI.setClockDivider(SPI_CLOCK_DIV4);
             // Data is read and written MSb first.
+#ifdef ESP32
+            SPI.setBitOrder(SPI_MSBFIRST);
+#else
             SPI.setBitOrder(MSBFIRST);
+#endif
             // Data is captured on rising edge of clock (CPHA = 0)
             // Base value of the clock is HIGH (CPOL = 1)
 
