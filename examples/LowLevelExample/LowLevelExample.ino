@@ -40,6 +40,7 @@ LSM6DS3Core myIMU(I2C_MODE, 0x6A);    //I2C device address 0x6A
 void setup() {
     //Init Serial port
     Serial.begin(9600);
+    while (!Serial);
 
     //Call .beginCore() to configure the IMU
     if (myIMU.beginCore() != 0) {

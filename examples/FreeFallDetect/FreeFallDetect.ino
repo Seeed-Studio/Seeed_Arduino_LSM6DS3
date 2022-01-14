@@ -40,6 +40,7 @@ uint16_t detectCount = 0;
 
 void setup() {
     Serial.begin(9600);
+    while (!Serial);
     if (lsm6ds3.begin() != 0) {
         Serial.println("Device error");
     } else {
@@ -84,4 +85,3 @@ int config_free_fall_detect(void) {
 
     return error;
 }
-

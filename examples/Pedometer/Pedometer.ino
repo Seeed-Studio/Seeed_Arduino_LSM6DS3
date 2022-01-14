@@ -39,6 +39,7 @@ LSM6DS3 pedometer(I2C_MODE, 0x6A);    //I2C device address 0x6A
 
 void setup() {
     Serial.begin(9600);
+    while (!Serial);
     if (pedometer.begin() != 0) {
         Serial.println("Device error");
     } else {
@@ -99,4 +100,3 @@ int config_pedometer(bool clearStep) {
 
     return errorAccumulator;
 }
-
