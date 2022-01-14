@@ -32,6 +32,9 @@
 #include "Wire.h"
 #include "SPI.h"
 
+#ifdef TARGET_SEEED_XIAO_NRF52840_SENSE
+#define Wire Wire1
+#endif
 //****************************************************************************//
 //
 //  LSM6DS3Core functions.
@@ -62,7 +65,16 @@ LSM6DS3Core::LSM6DS3Core(uint8_t busType, uint8_t inputArg) : commInterface(I2C_
 
 status_t LSM6DS3Core::beginCore(void) {
     status_t returnError = IMU_SUCCESS;
-
+#ifdef PIN_LSM6DS3TR_C_POWER
+	pinMode(PIN_LSM6DS3TR_C_POWER, OUTPUT);
+    NRF_P1->PIN_CNF[8] = ((uint32_t)NRF_GPIO_PIN_DIR_OUTPUT << GPIO_PIN_CNF_DIR_Pos)
+                              | ((uint32_t)NRF_GPIO_PIN_INPUT_DISCONNECT << GPIO_PIN_CNF_INPUT_Pos)
+                              | ((uint32_t)NRF_GPIO_PIN_NOPULL << GPIO_PIN_CNF_PULL_Pos)
+                              | ((uint32_t)NRF_GPIO_PIN_H0H1 << GPIO_PIN_CNF_DRIVE_Pos)
+                              | ((uint32_t)NRF_GPIO_PIN_NOSENSE << GPIO_PIN_CNF_SENSE_Pos);
+	digitalWrite(PIN_LSM6DS3TR_C_POWER, HIGH);
+	delay(10);
+#endif
     switch (commInterface) {
 
         case I2C_MODE:
@@ -70,6 +82,7 @@ status_t LSM6DS3Core::beginCore(void) {
             break;
 
         case SPI_MODE:
+#ifndef TARGET_SEEED_XIAO_NRF52840_SENSE
             // start the SPI library:
             SPI.begin();
             // Maximum SPI frequency is 10MHz, could divide by 2 here:
@@ -98,6 +111,7 @@ status_t LSM6DS3Core::beginCore(void) {
             // initalize the  data ready and chip select pins:
             pinMode(chipSelectPin, OUTPUT);
             digitalWrite(chipSelectPin, HIGH);
+#endif
             break;
         default:
             break;
@@ -165,6 +179,7 @@ status_t LSM6DS3Core::readRegisterRegion(uint8_t* outputPointer, uint8_t offset,
             break;
 
         case SPI_MODE:
+#ifndef TARGET_SEEED_XIAO_NRF52840_SENSE
             // take the chip select low to select the device:
             digitalWrite(chipSelectPin, LOW);
             // send the device the register you want to read:
@@ -185,6 +200,7 @@ status_t LSM6DS3Core::readRegisterRegion(uint8_t* outputPointer, uint8_t offset,
             }
             // take the chip select high to de-select:
             digitalWrite(chipSelectPin, HIGH);
+#endif
             break;
 
         default:
@@ -224,6 +240,7 @@ status_t LSM6DS3Core::readRegister(uint8_t* outputPointer, uint8_t offset) {
             break;
 
         case SPI_MODE:
+#ifndef TARGET_SEEED_XIAO_NRF52840_SENSE
             // take the chip select low to select the device:
             digitalWrite(chipSelectPin, LOW);
             // send the device the register you want to read:
@@ -237,6 +254,7 @@ status_t LSM6DS3Core::readRegister(uint8_t* outputPointer, uint8_t offset) {
                 //we've recieved all ones, report
                 returnError = IMU_ALL_ONES_WARNING;
             }
+#endif
             break;
 
         default:
@@ -288,6 +306,7 @@ status_t LSM6DS3Core::writeRegister(uint8_t offset, uint8_t dataToWrite) {
             break;
 
         case SPI_MODE:
+#ifndef TARGET_SEEED_XIAO_NRF52840_SENSE
             // take the chip select low to select the device:
             digitalWrite(chipSelectPin, LOW);
             // send the device the register you want to read:
@@ -297,6 +316,7 @@ status_t LSM6DS3Core::writeRegister(uint8_t offset, uint8_t dataToWrite) {
             // decrement the number of bytes left to read:
             // take the chip select high to de-select:
             digitalWrite(chipSelectPin, HIGH);
+#endif
             break;
 
         //No way to check error on this write (Except to read back but that's not reliable)
