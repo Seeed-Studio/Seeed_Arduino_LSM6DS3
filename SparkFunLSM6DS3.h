@@ -120,7 +120,7 @@ struct SensorSettings {
     int16_t fifoSampleRate;
     uint8_t fifoModeWord;
 
-    uint8_t tempSensitivity;
+    uint16_t tempSensitivity;
 
 };
 
