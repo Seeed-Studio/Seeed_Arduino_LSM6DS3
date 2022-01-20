@@ -1,4 +1,4 @@
-Accelerometer_And_Gyroscope_LSM6DS3  [![Build Status](https://travis-ci.com/Seeed-Studio/Accelerometer_And_Gyroscope_LSM6DS3.svg?branch=master)](https://travis-ci.com/Seeed-Studio/Accelerometer_And_Gyroscope_LSM6DS3)
+Seeed Arduino LSM6DS3  [![Build Status](https://travis-ci.com/Seeed-Studio/Accelerometer_And_Gyroscope_LSM6DS3.svg?branch=master)](https://travis-ci.com/Seeed-Studio/Accelerometer_And_Gyroscope_LSM6DS3)
 ---------------------------------
 
 ![](https://statics3.seeedstudio.com/images/product/105020012%203.jpg)
@@ -50,5 +50,4 @@ This product is _**open source**_!
 Please review the LICENSE.md file for license information. 
 
 
-[![Analytics](https://ga-beacon.appspot.com/UA-46589105-3/Grove_4Digital_Display)](https://github.com/igrigorik/ga-beacon)
 
