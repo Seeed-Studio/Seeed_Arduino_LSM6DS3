@@ -26,7 +26,7 @@
 
 //See SparkFunLSM6DS3.h for additional topology notes.
 
-#include "SparkFunLSM6DS3.h"
+#include "LSM6DS3.h"
 #include "stdint.h"
 
 #include "Wire.h"
