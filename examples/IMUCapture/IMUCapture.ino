@@ -25,7 +25,7 @@ void loop() {
   while (samplesRead == numSamples) {
     // read the acceleration data
     aX = myIMU.readFloatAccelX();
-    aY = myIMU.readFloatAccelX();
+    aY = myIMU.readFloatAccelY();
     aZ = myIMU.readFloatAccelZ();
 
     // sum up the absolutes
@@ -51,7 +51,7 @@ void loop() {
     // print the data in CSV format
     Serial.print(myIMU.readFloatAccelX(), 3);
     Serial.print(',');
-    Serial.print(myIMU.readFloatAccelX(), 3);
+    Serial.print(myIMU.readFloatAccelY(), 3);
     Serial.print(',');
     Serial.print(myIMU.readFloatAccelZ(), 3);
     Serial.print(',');
