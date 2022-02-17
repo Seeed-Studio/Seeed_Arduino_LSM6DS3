@@ -73,7 +73,7 @@ Contributions from seeed studio are recorded on GitHub:
 
 https://github.com/Seeed-Studio/Seeed_Arduino_LSM6DS3
 
-Add the Tf sensorflow lite support
+Add the Tensorflow lite support
 
 vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvStartvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
