@@ -1,5 +1,7 @@
 Seeed Arduino LSM6DS3  [![Build Status](https://travis-ci.com/Seeed-Studio/Accelerometer_And_Gyroscope_LSM6DS3.svg?branch=master)](https://travis-ci.com/Seeed-Studio/Accelerometer_And_Gyroscope_LSM6DS3)
 ---------------------------------
+[![Compile Examples](https://github.com/Seeed-Studio/Seeed_Arduino_LSM6DS3/workflows/Compile%20Examples/badge.svg)](https://github.com/Seeed-Studio/Seeed_Arduino_LSM6DS3/actions?workflow=Compile+Examples)
+
 
 ![](https://statics3.seeedstudio.com/images/product/105020012%203.jpg)
 
