@@ -32,9 +32,11 @@
 #include "Wire.h"
 #include "SPI.h"
 
-#ifdef TARGET_SEEED_XIAO_NRF52840_SENSE
+#if defined(TARGET_SEEED_XIAO_NRF52840_SENSE) || defined(ARDUINO_SILABS)
 #define Wire Wire1
 #endif
+
+
 //****************************************************************************//
 //
 //  LSM6DS3Core functions.
@@ -86,7 +88,9 @@ status_t LSM6DS3Core::beginCore(void) {
             // start the SPI library:
             SPI.begin();
             // Maximum SPI frequency is 10MHz, could divide by 2 here:
+            #ifndef ARDUINO_SILABS
             SPI.setClockDivider(SPI_CLOCK_DIV4);
+            #endif 
             // Data is read and written MSb first.
 #ifdef ESP32
             SPI.setBitOrder(SPI_MSBFIRST);
