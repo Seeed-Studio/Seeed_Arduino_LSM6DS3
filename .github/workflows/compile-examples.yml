@@ -1,0 +1,64 @@
+name: Compile Examples
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        board:
+          - fqbn: Seeeduino:samd:seeed_XIAO_m0
+            platforms: |
+              - name: Seeeduino:samd
+                source-url: https://files.seeedstudio.com/arduino/package_seeeduino_boards_index.json
+            artifact-name-suffix: Seeeduino-samd-seeed_XIAO_m0
+          - fqbn: Seeeduino:nrf52:xiaonRF52840
+            platforms: |
+              - name: Seeeduino:nrf52
+                source-url: https://files.seeedstudio.com/arduino/package_seeeduino_boards_index.json
+            artifact-name-suffix: Seeeduino-nrf52-xiaonRF52840
+          - fqbn: Seeeduino:nrf52:xiaonRF52840Sense
+            platforms: |
+              - name: Seeeduino:nrf52
+                source-url: https://files.seeedstudio.com/arduino/package_seeeduino_boards_index.json
+            artifact-name-suffix: Seeeduino-nrf52-xiaonRF52840Sense
+          - fqbn: Seeeduino:renesas_uno:XIAO_RA4M1
+            platforms: |
+              - name: Seeeduino:renesas_uno
+                source-url: https://files.seeedstudio.com/arduino/package_seeeduino_boards_index.json
+            artifact-name-suffix: Seeeduino-renesas_uno-XIAO_RA4M1
+          - fqbn: rp2040:rp2040:seeed_xiao_rp2040
+            platforms: |
+              - name: rp2040:rp2040
+                source-url: https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json
+            artifact-name-suffix: rp2040-rp2040-seeed_xiao_rp2040
+          - fqbn: esp32:esp32:XIAO_ESP32C3
+            platforms: |
+              - name: esp32:esp32
+            artifact-name-suffix: esp32-esp32-XIAO_ESP32C3
+          - fqbn: esp32:esp32:XIAO_ESP32C6
+            platforms: |
+              - name: esp32:esp32
+            artifact-name-suffix: esp32-esp32-XIAO_ESP32C6
+          - fqbn: esp32:esp32:XIAO_ESP32S3
+            platforms: |
+              - name: esp32:esp32
+            artifact-name-suffix: esp32-esp32-XIAO_ESP32S3
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Compile sketch
+        uses: arduino/compile-sketches@v1
+        with:
+          fqbn: ${{ matrix.board.fqbn }}
+          platforms: ${{ matrix.board.platforms }}
+          sketch-paths: |
+            - examples
