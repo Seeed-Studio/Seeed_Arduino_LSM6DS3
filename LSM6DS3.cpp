@@ -166,8 +166,9 @@ status_t LSM6DS3Core::readRegisterRegion(uint8_t* outputPointer, uint8_t offset,
     //define pointer that will point to the external space
     uint8_t i = 0;
     uint8_t c = 0;
+#ifndef TARGET_SEEED_XIAO_NRF52840_SENSE 
     uint8_t tempFFCounter = 0;
-
+#endif
     switch (commInterface) {
 
         case I2C_MODE:
@@ -230,7 +231,7 @@ status_t LSM6DS3Core::readRegisterRegion(uint8_t* outputPointer, uint8_t offset,
 //****************************************************************************//
 status_t LSM6DS3Core::readRegister(uint8_t* outputPointer, uint8_t offset) {
     //Return value
-    uint8_t result;
+    uint8_t result = 0;
     uint8_t numBytes = 1;
     status_t returnError = IMU_SUCCESS;
 
@@ -284,7 +285,7 @@ status_t LSM6DS3Core::readRegister(uint8_t* outputPointer, uint8_t offset) {
 //
 //****************************************************************************//
 status_t LSM6DS3Core::readRegisterInt16(int16_t* outputPointer, uint8_t offset) {
-    uint8_t myBuffer[2];
+    uint8_t myBuffer[2] = {0, 0};
     status_t returnError = readRegisterRegion(myBuffer, offset, 2);  //Does memory transfer
     int16_t output = (int16_t)myBuffer[0] | int16_t(myBuffer[1] << 8);
 
