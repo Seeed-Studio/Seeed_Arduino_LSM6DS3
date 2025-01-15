@@ -93,12 +93,16 @@ status_t LSM6DS3Core::beginCore(void) {
             // start the SPI library:
             SPI.begin();
             // Maximum SPI frequency is 10MHz, could divide by 2 here:
-            #ifndef ARDUINO_XIAO_MG24
+            #if defined(ARDUINO_XIAO_RA4M1) || defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_ARCH_RP2350)
+            SPI.beginTransaction(SPISettings(1000000, MSBFIRST, SPI_MODE0));
+            #elif defined(ARDUINO_XIAO_MG24)
             SPI.setClockDivider(SPI_CLOCK_DIV4);
             #endif 
             // Data is read and written MSb first.
 #ifdef ESP32
             SPI.setBitOrder(SPI_MSBFIRST);
+#elif defined(ARDUINO_XIAO_RA4M1)
+            // noting
 #else
             SPI.setBitOrder(MSBFIRST);
 #endif

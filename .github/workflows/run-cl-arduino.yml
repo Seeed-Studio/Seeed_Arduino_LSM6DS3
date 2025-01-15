@@ -1,0 +1,67 @@
+name: Run Ci Arduino
+
+on:
+  push:
+  pull_request:
+  repository_dispatch:
+    types: [trigger-workflow]
+
+jobs:
+  ci-arduino:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Checkout script repository
+        uses: actions/checkout@v4
+        with:
+            repository: Seeed-Studio/ci-arduino
+            path: ci
+
+
+      - name: Setup arduino cli
+        uses: arduino/setup-arduino-cli@v2.0.0
+
+      - name: Create a depend.list file
+        run: |
+          # eg: echo "<repo>" >> depend.list
+ 
+
+
+
+      - name: Create a ignore.list file
+        run: |
+          # eg: echo "<path>,<fqbn>" >> ignore.list
+
+          # The dependent TensorFlowLite library can no longer be found
+          
+          echo "IMU_Classifier,Seeeduino:samd:seeed_XIAO_m0" >> ignore.list
+          echo "IMU_Classifier,Seeeduino:nrf52:xiaonRF52840" >> ignore.list
+          echo "IMU_Classifier,Seeeduino:nrf52:xiaonRF52840Sense" >> ignore.list
+          echo "IMU_Classifier,Seeeduino:renesas_uno:XIAO_RA4M1" >> ignore.list
+          echo "IMU_Classifier,rp2040:rp2040:seeed_xiao_rp2040" >> ignore.list
+          echo "IMU_Classifier,rp2040:rp2040:seeed_xiao_rp2350" >> ignore.list
+          echo "IMU_Classifier,esp32:esp32:XIAO_ESP32C3" >> ignore.list
+          echo "IMU_Classifier,esp32:esp32:XIAO_ESP32C6" >> ignore.list
+          echo "IMU_Classifier,esp32:esp32:XIAO_ESP32S3" >> ignore.list
+
+            
+
+      - name: Build sketch
+        run: |
+          ./ci/tools/compile.sh
+
+      - name: Build result
+        run: |
+            cat build.log
+            if [ ${{ github.event_name }} == 'pull_request' ] && [ -f compile.failed ]; then
+                exit 1
+            fi
+
+      - name: Generate issue
+        if: ${{ github.event_name != 'pull_request' }}
+        run: ./ci/tools/issue.sh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
