@@ -32,7 +32,7 @@
 #include "Wire.h"
 #include "SPI.h"
 
-#if defined(TARGET_SEEED_XIAO_NRF52840_SENSE)
+#if defined(TARGET_SEEED_XIAO_NRF52840_SENSE) || defined(TARGET_SEEED_XIAO_NRF52840_SENSE_PLUS)
 #define Wire Wire1
 #endif
 #if defined(ARDUINO_XIAO_MG24)
