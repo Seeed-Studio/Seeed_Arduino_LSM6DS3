@@ -98,7 +98,7 @@ status_t LSM6DS3Core::beginCore(void) {
             #elif defined(ARDUINO_XIAO_MG24)
             // SPI.setClockDivider(SPI_CLOCK_DIV4);
             SPI.setClockDivider(4);
-            #endif 
+            #endif
             // Data is read and written MSb first.
 #ifdef ESP32
             SPI.setBitOrder(SPI_MSBFIRST);
@@ -171,7 +171,7 @@ status_t LSM6DS3Core::readRegisterRegion(uint8_t* outputPointer, uint8_t offset,
     //define pointer that will point to the external space
     uint8_t i = 0;
     uint8_t c = 0;
-#ifndef TARGET_SEEED_XIAO_NRF52840_SENSE 
+#ifndef TARGET_SEEED_XIAO_NRF52840_SENSE
     uint8_t tempFFCounter = 0;
 #endif
     switch (commInterface) {
@@ -393,7 +393,6 @@ LSM6DS3::LSM6DS3(uint8_t busType, uint8_t inputArg) : LSM6DS3Core(busType, input
 
     allOnesCounter = 0;
     nonSuccessCounter = 0;
-
 }
 
 //****************************************************************************//
@@ -570,6 +569,14 @@ status_t LSM6DS3::begin() {
         }
     }
 
+    if (settings.timestampEnabled) {
+        // Enable the timestamp counter (CTRL10_C寄存器)
+        uint8_t ctrl10_c;
+        readRegister(&ctrl10_c, LSM6DS3_ACC_GYRO_CTRL10_C);
+        ctrl10_c |= 0x20;  // set TIMER_EN
+        writeRegister(LSM6DS3_ACC_GYRO_CTRL10_C, ctrl10_c);
+    }
+
     return returnError;
 }
 
@@ -730,6 +737,20 @@ float LSM6DS3::readTempF(void) {
 
 //****************************************************************************//
 //
+//  Timestamp section
+//
+//****************************************************************************//
+uint32_t LSM6DS3::fifoTimestamp() {
+    uint8_t data[6];
+    status_t error = readRegisterRegion(data, LSM6DS3_ACC_GYRO_FIFO_DATA_OUT_L, 3*sizeof(uint16_t));
+    if (error == IMU_SUCCESS) {
+        return (data[1] << 16) | (data[0] << 8) | data[3];
+    }
+    return 0;
+}
+
+//****************************************************************************//
+//
 //  FIFO section
 //
 //****************************************************************************//
@@ -761,8 +782,28 @@ void LSM6DS3::fifoBegin(void) {
         tempFIFO_CTRL3 |= (settings.accelFifoDecimation & 0x07);
     }
 
-    //CONFIGURE FIFO_CTRL4  (nothing for now-- sets data sets 3 and 4
-    uint8_t tempFIFO_CTRL4 = 0;
+    if (settings.timestampFifoEnabled == 1) {
+        // Write timestamp data to the FIFO.
+        uint8_t fifo_ctrl2;
+        readRegister(&fifo_ctrl2, LSM6DS3_ACC_GYRO_FIFO_CTRL2);
+        fifo_ctrl2 |= 0x80;  // FIFO_CTRL2(07H)->TIMER_PEDO_FIFO_EN
+        writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL2, fifo_ctrl2);
+
+        // translates to "Set timestamp resolution
+        uint8_t tap_cfg;
+        readRegister(&tap_cfg, LSM6DS3_ACC_GYRO_WAKE_UP_DUR);
+        tap_cfg &= ~(1 << 4);
+        // timestampResolution
+        //  0: 6.4ms
+        //  1: 25us
+        tap_cfg |= (settings.timestampResolution & 0x01) << 4;
+        writeRegister(LSM6DS3_ACC_GYRO_WAKE_UP_DUR, tap_cfg);
+    }
+
+    // CONFIGURE FIFO_CTRL4
+    // Select the decimation factor for the 4th FIFO dataset by configuring the DEC_DS4_FIFO[2:0] field in the FIFO_CTRL4 register. 
+    //If you don't need the third and fourth datasets, this value can be set to 0
+    uint8_t tempFIFO_CTRL4 = 0x09;
 
 
     //CONFIGURE FIFO_CTRL5
@@ -805,13 +846,10 @@ void LSM6DS3::fifoBegin(void) {
 
     //Write the data
     writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL1, thresholdLByte);
-    //Serial.println(thresholdLByte, HEX);
-    writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL2, thresholdHByte);
-    //Serial.println(thresholdHByte, HEX);
+    //writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL2, thresholdHByte);
     writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL3, tempFIFO_CTRL3);
     writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL4, tempFIFO_CTRL4);
     writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL5, tempFIFO_CTRL5);
-
 }
 void LSM6DS3::fifoClear(void) {
     //Drain the fifo data and dump it
@@ -848,4 +886,3 @@ void LSM6DS3::fifoEnd(void) {
     // turn off the fifo
     writeRegister(LSM6DS3_ACC_GYRO_FIFO_STATUS1, 0x00);  //Disable
 }
-

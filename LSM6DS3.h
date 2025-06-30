@@ -27,6 +27,7 @@
 #ifndef __LSM6DS3IMU_H__
 #define __LSM6DS3IMU_H__
 
+#include "Arduino.h"
 #include "stdint.h"
 
 #define I2C_MODE 0
@@ -122,6 +123,9 @@ struct SensorSettings {
 
     uint16_t tempSensitivity;
 
+    uint8_t timestampEnabled;        // Enable timestamp feature
+    uint8_t timestampFifoEnabled;    // write timestamp data in FIFO
+    uint8_t timestampResolution;     // Set timestamp resolution ; 0: 6.4ms  1: 25us  
 };
 
 
@@ -179,6 +183,7 @@ class LSM6DS3 : public LSM6DS3Core {
     float calcGyro(int16_t);
     float calcAccel(int16_t);
 
+    uint32_t fifoTimestamp(void);
   private:
 
 };
