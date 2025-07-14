@@ -573,7 +573,7 @@ status_t LSM6DS3::begin() {
         // Enable the timestamp counter (CTRL10_C寄存器)
         uint8_t ctrl10_c;
         readRegister(&ctrl10_c, LSM6DS3_ACC_GYRO_CTRL10_C);
-        ctrl10_c |= 0x20;  // set TIMER_EN
+        ctrl10_c |= LSM6DS3_ACC_GYRO_ZEN_G_ENABLED;  // set TIMER_EN
         writeRegister(LSM6DS3_ACC_GYRO_CTRL10_C, ctrl10_c);
     }
 
@@ -786,7 +786,7 @@ void LSM6DS3::fifoBegin(void) {
         // Write timestamp data to the FIFO.
         uint8_t fifo_ctrl2;
         readRegister(&fifo_ctrl2, LSM6DS3_ACC_GYRO_FIFO_CTRL2);
-        fifo_ctrl2 |= 0x80;  // FIFO_CTRL2(07H)->TIMER_PEDO_FIFO_EN
+        fifo_ctrl2 |= LSM6DS3_ACC_GYRO_TIM_PEDO_FIFO_EN_ENABLED;  // FIFO_CTRL2(07H)->TIMER_PEDO_FIFO_EN
         writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL2, fifo_ctrl2);
 
         // translates to "Set timestamp resolution
