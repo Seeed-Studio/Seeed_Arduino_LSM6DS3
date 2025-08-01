@@ -32,9 +32,6 @@
 #include "Wire.h"
 #include "SPI.h"
 
-#if defined(TARGET_SEEED_XIAO_NRF52840_SENSE) || defined(TARGET_SEEED_XIAO_NRF52840_SENSE_PLUS)
-#define Wire Wire1
-#endif
 #if defined(ARDUINO_XIAO_MG24)
 #define Wire Wire1
 #define PIN_LSM6DS3TR_C_POWER PD5
@@ -72,7 +69,7 @@ status_t LSM6DS3Core::beginCore(void) {
     status_t returnError = IMU_SUCCESS;
 #ifdef PIN_LSM6DS3TR_C_POWER
 	pinMode(PIN_LSM6DS3TR_C_POWER, OUTPUT);
-    #if defined(TARGET_SEEED_XIAO_NRF52840_SENSE)
+    #if defined(NRF52840_XXAA)
     NRF_P1->PIN_CNF[8] = ((uint32_t)NRF_GPIO_PIN_DIR_OUTPUT << GPIO_PIN_CNF_DIR_Pos)
                               | ((uint32_t)NRF_GPIO_PIN_INPUT_DISCONNECT << GPIO_PIN_CNF_INPUT_Pos)
                               | ((uint32_t)NRF_GPIO_PIN_NOPULL << GPIO_PIN_CNF_PULL_Pos)
@@ -89,7 +86,7 @@ status_t LSM6DS3Core::beginCore(void) {
             break;
 
         case SPI_MODE:
-#ifndef TARGET_SEEED_XIAO_NRF52840_SENSE
+#if defined(NRF52840_XXAA)
             // start the SPI library:
             SPI.begin();
             // Maximum SPI frequency is 10MHz, could divide by 2 here:
@@ -171,7 +168,7 @@ status_t LSM6DS3Core::readRegisterRegion(uint8_t* outputPointer, uint8_t offset,
     //define pointer that will point to the external space
     uint8_t i = 0;
     uint8_t c = 0;
-#ifndef TARGET_SEEED_XIAO_NRF52840_SENSE
+#if defined(NRF52840_XXAA)
     uint8_t tempFFCounter = 0;
 #endif
     switch (commInterface) {
@@ -194,7 +191,7 @@ status_t LSM6DS3Core::readRegisterRegion(uint8_t* outputPointer, uint8_t offset,
             break;
 
         case SPI_MODE:
-#ifndef TARGET_SEEED_XIAO_NRF52840_SENSE
+#if defined(NRF52840_XXAA)
             // take the chip select low to select the device:
             digitalWrite(chipSelectPin, LOW);
             // send the device the register you want to read:
@@ -255,7 +252,7 @@ status_t LSM6DS3Core::readRegister(uint8_t* outputPointer, uint8_t offset) {
             break;
 
         case SPI_MODE:
-#ifndef TARGET_SEEED_XIAO_NRF52840_SENSE
+#if defined(NRF52840_XXAA)
             // take the chip select low to select the device:
             digitalWrite(chipSelectPin, LOW);
             // send the device the register you want to read:
@@ -321,7 +318,7 @@ status_t LSM6DS3Core::writeRegister(uint8_t offset, uint8_t dataToWrite) {
             break;
 
         case SPI_MODE:
-#ifndef TARGET_SEEED_XIAO_NRF52840_SENSE
+#if defined(NRF52840_XXAA)
             // take the chip select low to select the device:
             digitalWrite(chipSelectPin, LOW);
             // send the device the register you want to read:
