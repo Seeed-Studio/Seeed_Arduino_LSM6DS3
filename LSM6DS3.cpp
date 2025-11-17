@@ -102,8 +102,8 @@ status_t LSM6DS3Core::beginCore(void) {
             // Data is read and written MSb first.
 #ifdef ESP32
             SPI.setBitOrder(SPI_MSBFIRST);
-#elif defined(ARDUINO_XIAO_RA4M1)
-            // noting
+#elif defined(ARDUINO_XIAO_RA4M1) || defined(ARDUINO_ARCH_MBED)
+            // MbedSPI and XIAO_RA4M1 don't support setBitOrder - use SPISettings instead
 #else
             SPI.setBitOrder(MSBFIRST);
 #endif
@@ -111,15 +111,13 @@ status_t LSM6DS3Core::beginCore(void) {
             // Base value of the clock is HIGH (CPOL = 1)
 
             // MODE3 for 328p operation
-            #ifdef __AVR__
+            #if defined(__AVR__) && !defined(ARDUINO_ARCH_MBED)
             SPI.setDataMode(SPI_MODE3);
-            #else
             #endif
 
             // MODE0 for Teensy 3.1 operation
-            #ifdef __MK20DX256__
+            #if defined(__MK20DX256__) && !defined(ARDUINO_ARCH_MBED)
             SPI.setDataMode(SPI_MODE0);
-            #else
             #endif
 
             // initalize the  data ready and chip select pins:
