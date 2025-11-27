@@ -385,7 +385,7 @@ LSM6DS3::LSM6DS3(uint8_t busType, uint8_t inputArg) : LSM6DS3Core(busType, input
     settings.commMode = 1;  //Can be modes 1, 2 or 3
 
     //FIFO control data
-    settings.fifoThreshold = 3000;  //Can be 0 to 4096 (16 bit bytes)
+    settings.fifoThreshold = 2047;  //Can be 0 to 2047 (11 bits)
     settings.fifoSampleRate = 10;  //default 10Hz
     settings.fifoModeWord = 0;  //Default off
 
@@ -760,8 +760,9 @@ void LSM6DS3::fifoBegin(void) {
     //and writes them all.
 
     //Split and mask the threshold
-    uint8_t thresholdLByte = settings.fifoThreshold & 0x00FF;
-    uint8_t thresholdHByte = (settings.fifoThreshold & 0x0F00) >> 8;
+    uint16_t fifoThreshold = min(settings.fifoThreshold, 2047);
+    uint8_t thresholdLByte = fifoThreshold & 0x00FF;
+    uint8_t thresholdHByte = (fifoThreshold & 0x0700) >> 8;
     //Pedo bits not configured (ctl2)
 
     //CONFIGURE FIFO_CTRL3
@@ -844,7 +845,11 @@ void LSM6DS3::fifoBegin(void) {
 
     //Write the data
     writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL1, thresholdLByte);
-    //writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL2, thresholdHByte);
+    // Only update first 3 bits (FTH) of FIFO_CTRL2
+    uint8_t currentFifoCtrl2;
+    readRegister(&currentFifoCtrl2, LSM6DS3_ACC_GYRO_FIFO_CTRL2);
+    currentFifoCtrl2 = (currentFifoCtrl2 & 0xF8) | (thresholdHByte & 0x07); // Keep high original 5 bits, add low 3 bits (FTH)
+    writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL2, currentFifoCtrl2);
     writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL3, tempFIFO_CTRL3);
     writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL4, tempFIFO_CTRL4);
     writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL5, tempFIFO_CTRL5);
