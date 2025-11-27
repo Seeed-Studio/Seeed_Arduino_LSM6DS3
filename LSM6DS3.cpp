@@ -760,7 +760,7 @@ void LSM6DS3::fifoBegin(void) {
     //and writes them all.
 
     //Split and mask the threshold
-    uint16_t fifoThreshold = min(settings.fifoThreshold, 2047);
+    uint16_t fifoThreshold = (settings.fifoThreshold > 2047) ? 2047 : settings.fifoThreshold;
     uint8_t thresholdLByte = fifoThreshold & 0x00FF;
     uint8_t thresholdHByte = (fifoThreshold & 0x0700) >> 8;
     //Pedo bits not configured (ctl2)
