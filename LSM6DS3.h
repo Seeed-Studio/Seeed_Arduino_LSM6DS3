@@ -215,7 +215,8 @@ class LSM6DS3 : public LSM6DS3Core {
 #define LSM6DS3_ACC_GYRO_CTRL3_C  			0X12
 #define LSM6DS3_ACC_GYRO_CTRL4_C  			0X13
 #define LSM6DS3_ACC_GYRO_CTRL5_C  			0X14
-#define LSM6DS3_ACC_GYRO_CTRL6_G  			0X15
+#define LSM6DS3_ACC_GYRO_CTRL6_C  			0X15 // Correct name per datasheet
+#define LSM6DS3_ACC_GYRO_CTRL6_G  			0X15 // Legacy support
 #define LSM6DS3_ACC_GYRO_CTRL7_G  			0X16
 #define LSM6DS3_ACC_GYRO_CTRL8_XL  			0X17
 #define LSM6DS3_ACC_GYRO_CTRL9_XL  			0X18
