@@ -760,10 +760,30 @@ void LSM6DS3::fifoBegin(void) {
     //and writes them all.
 
     //Split and mask the threshold
-    uint16_t fifoThreshold = (settings.fifoThreshold > 2047) ? 2047 : settings.fifoThreshold;
-    uint8_t thresholdLByte = fifoThreshold & 0x00FF;
-    uint8_t thresholdHByte = (fifoThreshold & 0x0700) >> 8;
+    uint8_t thresholdLByte = settings.fifoThreshold & 0x00FF;
+    uint8_t thresholdHByte = (settings.fifoThreshold & 0x0F00) >> 8;
     //Pedo bits not configured (ctl2)
+
+	// CONFIGURE FIFO_CTRL2
+	uint8_t tempFIFO_CTRL2 = 0;
+    readRegister(&tempFIFO_CTRL2, LSM6DS3_ACC_GYRO_FIFO_CTRL2);
+	if (settings.timestampFifoEnabled == 1) {
+        // Write timestamp data to the FIFO.
+        tempFIFO_CTRL2 |= LSM6DS3_ACC_GYRO_TIM_PEDO_FIFO_EN_ENABLED;  // FIFO_CTRL2(07H)->TIMER_PEDO_FIFO_EN
+
+        // translates to "Set timestamp resolution
+        uint8_t tap_cfg;
+        readRegister(&tap_cfg, LSM6DS3_ACC_GYRO_WAKE_UP_DUR);
+        tap_cfg &= ~(1 << 4);
+        // timestampResolution
+        //  0: 6.4ms
+        //  1: 25us
+        tap_cfg |= (settings.timestampResolution & 0x01) << 4;
+        writeRegister(LSM6DS3_ACC_GYRO_WAKE_UP_DUR, tap_cfg);
+    }
+	// Adding thresholdHByte to FIFO_CTRL2 register
+    tempFIFO_CTRL2 &= 0xF0;
+    tempFIFO_CTRL2 |= (thresholdHByte & 0x0F);
 
     //CONFIGURE FIFO_CTRL3
     uint8_t tempFIFO_CTRL3 = 0;
@@ -779,24 +799,6 @@ void LSM6DS3::fifoBegin(void) {
         //Build on FIFO_CTRL3
         //Set decimation
         tempFIFO_CTRL3 |= (settings.accelFifoDecimation & 0x07);
-    }
-
-    if (settings.timestampFifoEnabled == 1) {
-        // Write timestamp data to the FIFO.
-        uint8_t fifo_ctrl2;
-        readRegister(&fifo_ctrl2, LSM6DS3_ACC_GYRO_FIFO_CTRL2);
-        fifo_ctrl2 |= LSM6DS3_ACC_GYRO_TIM_PEDO_FIFO_EN_ENABLED;  // FIFO_CTRL2(07H)->TIMER_PEDO_FIFO_EN
-        writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL2, fifo_ctrl2);
-
-        // translates to "Set timestamp resolution
-        uint8_t tap_cfg;
-        readRegister(&tap_cfg, LSM6DS3_ACC_GYRO_WAKE_UP_DUR);
-        tap_cfg &= ~(1 << 4);
-        // timestampResolution
-        //  0: 6.4ms
-        //  1: 25us
-        tap_cfg |= (settings.timestampResolution & 0x01) << 4;
-        writeRegister(LSM6DS3_ACC_GYRO_WAKE_UP_DUR, tap_cfg);
     }
 
     // CONFIGURE FIFO_CTRL4
@@ -845,15 +847,12 @@ void LSM6DS3::fifoBegin(void) {
 
     //Write the data
     writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL1, thresholdLByte);
-    // Only update first 3 bits (FTH) of FIFO_CTRL2
-    uint8_t currentFifoCtrl2;
-    readRegister(&currentFifoCtrl2, LSM6DS3_ACC_GYRO_FIFO_CTRL2);
-    currentFifoCtrl2 = (currentFifoCtrl2 & 0xF8) | (thresholdHByte & 0x07); // Keep high original 5 bits, add low 3 bits (FTH)
-    writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL2, currentFifoCtrl2);
+    writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL2, tempFIFO_CTRL2);
     writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL3, tempFIFO_CTRL3);
     writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL4, tempFIFO_CTRL4);
     writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL5, tempFIFO_CTRL5);
 }
+
 void LSM6DS3::fifoClear(void) {
     //Drain the fifo data and dump it
     while ((fifoGetStatus() & 0x1000) == 0) {
