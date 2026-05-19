@@ -886,5 +886,5 @@ uint16_t LSM6DS3::fifoGetStatus(void) {
 }
 void LSM6DS3::fifoEnd(void) {
     // turn off the fifo
-    writeRegister(LSM6DS3_ACC_GYRO_FIFO_STATUS1, 0x00);  //Disable
+    writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL5, 0x00);  //Disable
 }
