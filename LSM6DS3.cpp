@@ -854,11 +854,25 @@ void LSM6DS3::fifoBegin(void) {
 }
 
 void LSM6DS3::fifoClear(void) {
-    //Drain the fifo data and dump it
-    while ((fifoGetStatus() & 0x1000) == 0) {
-        fifoRead();
-    }
-
+    // The previous implementation drained the FIFO by calling fifoRead() until
+    // the FIFO_EMPTY flag asserted. When the sensor runs in a continuous FIFO
+    // mode (e.g. DYNAMIC STREAM 2, the mode set by fifoBegin()) at high ODR
+    // (e.g. accel at 6660 Hz), new samples are pushed into the FIFO faster than
+    // they can be read back out over the bus, so FIFO_EMPTY never asserts and
+    // the drain loop never exits -- the sketch hangs (see issue #36).
+    //
+    // The datasheet-sanctioned way to clear the FIFO is to switch FIFO_CTRL5.MODE
+    // to BYPASS, which flushes the FIFO contents, and then restore the previous
+    // mode. ("The FIFO buffer is cleared when the FIFO_MODE field is set to
+    // BYPASS mode.")
+    uint8_t ctrl5;
+    readRegister(&ctrl5, LSM6DS3_ACC_GYRO_FIFO_CTRL5);
+    // Clear MODE[2:0] -> BYPASS (000) to flush the FIFO.
+    writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL5,
+                 (ctrl5 & 0xF8) | LSM6DS3_ACC_GYRO_FIFO_MODE_BYPASS);
+    delay(2);
+    // Restore the previous FIFO mode / ODR.
+    writeRegister(LSM6DS3_ACC_GYRO_FIFO_CTRL5, ctrl5);
 }
 int16_t LSM6DS3::fifoRead(void) {
     //Pull the last data from the fifo
