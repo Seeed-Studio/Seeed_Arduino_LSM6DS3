@@ -380,6 +380,9 @@ LSM6DS3::LSM6DS3(uint8_t busType, uint8_t inputArg) : LSM6DS3Core(busType, input
     settings.accelFifoDecimation = 1;  //set 1 for on /1
 
     settings.tempEnabled = 1;
+    settings.timestampEnabled = 0;
+    settings.timestampFifoEnabled = 0;
+    settings.timestampResolution = 0;
 
     //Select interface mode
     settings.commMode = 1;  //Can be modes 1, 2 or 3
@@ -568,11 +571,22 @@ status_t LSM6DS3::begin() {
     }
 
     if (settings.timestampEnabled) {
-        // Enable the timestamp counter (CTRL10_C寄存器)
-        uint8_t ctrl10_c;
-        readRegister(&ctrl10_c, LSM6DS3_ACC_GYRO_CTRL10_C);
-        ctrl10_c |= LSM6DS3_ACC_GYRO_ZEN_G_ENABLED;  // set TIMER_EN
-        writeRegister(LSM6DS3_ACC_GYRO_CTRL10_C, ctrl10_c);
+        // Enable the timestamp counter. TIMER_EN lives at a different
+        // register/bit depending on the die revision (see WHO_AM_I check
+        // above): on the original LSM6DS3 it is TAP_CFG1 bit7, while on
+        // LSM6DS3-C/TR-C that bit position is repurposed and TIMER_EN moved
+        // into CTRL10_C bit5 (which otherwise reads as ZEN_G).
+        if (result == LSM6DS3_ACC_GYRO_WHO_AM_I) { //0x69 LSM6DS3
+            uint8_t tap_cfg1;
+            readRegister(&tap_cfg1, LSM6DS3_ACC_GYRO_TAP_CFG1);
+            tap_cfg1 |= LSM6DS3_ACC_GYRO_TIMER_EN_ENABLED;
+            writeRegister(LSM6DS3_ACC_GYRO_TAP_CFG1, tap_cfg1);
+        } else if (result == LSM6DS3_C_ACC_GYRO_WHO_AM_I) { //0x6A LSM6DS3-C/TR-C
+            uint8_t ctrl10_c;
+            readRegister(&ctrl10_c, LSM6DS3_ACC_GYRO_CTRL10_C);
+            ctrl10_c |= LSM6DS3_ACC_GYRO_ZEN_G_ENABLED;  // set TIMER_EN
+            writeRegister(LSM6DS3_ACC_GYRO_CTRL10_C, ctrl10_c);
+        }
     }
 
     return returnError;
@@ -742,7 +756,7 @@ uint32_t LSM6DS3::fifoTimestamp() {
     uint8_t data[6];
     status_t error = readRegisterRegion(data, LSM6DS3_ACC_GYRO_FIFO_DATA_OUT_L, 3*sizeof(uint16_t));
     if (error == IMU_SUCCESS) {
-        return (data[1] << 16) | (data[0] << 8) | data[3];
+        return ((uint32_t)data[1] << 16) | ((uint32_t)data[0] << 8) | (uint32_t)data[3];
     }
     return 0;
 }
