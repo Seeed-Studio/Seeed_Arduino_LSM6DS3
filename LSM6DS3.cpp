@@ -571,6 +571,26 @@ status_t LSM6DS3::begin() {
     }
 
     if (settings.timestampEnabled) {
+        // Configure the timestamp resolution before starting the counter. This
+        // applies to both direct register reads and FIFO timestamps.
+        uint8_t wake_up_dur;
+        readRegister(&wake_up_dur, LSM6DS3_ACC_GYRO_WAKE_UP_DUR);
+        const uint8_t current_timer_hr = wake_up_dur & LSM6DS3_ACC_GYRO_TIMER_HR_25us;
+        const uint8_t configured_timer_hr = (settings.timestampResolution & 0x01)
+                                                ? LSM6DS3_ACC_GYRO_TIMER_HR_25us
+                                                : LSM6DS3_ACC_GYRO_TIMER_HR_6_4ms;
+        if (current_timer_hr != configured_timer_hr) {
+            wake_up_dur &= ~((uint8_t)LSM6DS3_ACC_GYRO_TIMER_HR_25us);
+            wake_up_dur |= configured_timer_hr;
+            writeRegister(LSM6DS3_ACC_GYRO_WAKE_UP_DUR, wake_up_dur);
+
+            // ST requires a counter reset when switching from 6.4 ms to 25 us.
+            if (current_timer_hr == LSM6DS3_ACC_GYRO_TIMER_HR_6_4ms &&
+                configured_timer_hr == LSM6DS3_ACC_GYRO_TIMER_HR_25us) {
+                writeRegister(LSM6DS3_ACC_GYRO_TIMESTAMP2_REG, 0xAA);
+            }
+        }
+
         // Enable the timestamp counter. TIMER_EN lives at a different
         // register/bit depending on the die revision (see WHO_AM_I check
         // above): on the original LSM6DS3 it is TAP_CFG1 bit7, while on
@@ -784,16 +804,6 @@ void LSM6DS3::fifoBegin(void) {
 	if (settings.timestampFifoEnabled == 1) {
         // Write timestamp data to the FIFO.
         tempFIFO_CTRL2 |= LSM6DS3_ACC_GYRO_TIM_PEDO_FIFO_EN_ENABLED;  // FIFO_CTRL2(07H)->TIMER_PEDO_FIFO_EN
-
-        // translates to "Set timestamp resolution
-        uint8_t tap_cfg;
-        readRegister(&tap_cfg, LSM6DS3_ACC_GYRO_WAKE_UP_DUR);
-        tap_cfg &= ~(1 << 4);
-        // timestampResolution
-        //  0: 6.4ms
-        //  1: 25us
-        tap_cfg |= (settings.timestampResolution & 0x01) << 4;
-        writeRegister(LSM6DS3_ACC_GYRO_WAKE_UP_DUR, tap_cfg);
     }
 	// Adding thresholdHByte to FIFO_CTRL2 register
     tempFIFO_CTRL2 &= 0xF0;
