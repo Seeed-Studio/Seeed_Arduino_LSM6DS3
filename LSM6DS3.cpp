@@ -380,6 +380,9 @@ LSM6DS3::LSM6DS3(uint8_t busType, uint8_t inputArg) : LSM6DS3Core(busType, input
     settings.accelFifoDecimation = 1;  //set 1 for on /1
 
     settings.tempEnabled = 1;
+    settings.timestampEnabled = 0;
+    settings.timestampFifoEnabled = 0;
+    settings.timestampResolution = 0;
 
     //Select interface mode
     settings.commMode = 1;  //Can be modes 1, 2 or 3
@@ -753,7 +756,7 @@ uint32_t LSM6DS3::fifoTimestamp() {
     uint8_t data[6];
     status_t error = readRegisterRegion(data, LSM6DS3_ACC_GYRO_FIFO_DATA_OUT_L, 3*sizeof(uint16_t));
     if (error == IMU_SUCCESS) {
-        return (data[1] << 16) | (data[0] << 8) | data[3];
+        return ((uint32_t)data[2] << 16) | ((uint32_t)data[1] << 8) | (uint32_t)data[0];
     }
     return 0;
 }
