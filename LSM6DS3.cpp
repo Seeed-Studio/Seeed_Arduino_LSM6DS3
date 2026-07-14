@@ -756,7 +756,7 @@ uint32_t LSM6DS3::fifoTimestamp() {
     uint8_t data[6];
     status_t error = readRegisterRegion(data, LSM6DS3_ACC_GYRO_FIFO_DATA_OUT_L, 3*sizeof(uint16_t));
     if (error == IMU_SUCCESS) {
-        return ((uint32_t)data[2] << 16) | ((uint32_t)data[1] << 8) | (uint32_t)data[0];
+        return ((uint32_t)data[1] << 16) | ((uint32_t)data[0] << 8) | (uint32_t)data[3];
     }
     return 0;
 }
