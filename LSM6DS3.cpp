@@ -177,7 +177,7 @@ status_t LSM6DS3Core::readRegisterRegion(uint8_t* outputPointer, uint8_t offset,
         case I2C_MODE:
             Wire.beginTransmission(I2CAddress);
             Wire.write(offset);
-            if (Wire.endTransmission() != 0) {
+            if (Wire.endTransmission(false) != 0) {
                 returnError = IMU_HW_ERROR;
             } else { //OK, all worked, keep going
                 // request 6 bytes from slave device
