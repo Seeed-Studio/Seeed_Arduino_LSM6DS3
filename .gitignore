@@ -213,3 +213,12 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+
+#############
+## Arduino build artifacts (arduino-cli export / IDE output)
+#############
+
+*.hex
+*.elf
+*.bin
+*.map

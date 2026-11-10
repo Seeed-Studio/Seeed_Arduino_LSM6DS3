@@ -389,7 +389,7 @@ LSM6DS3::LSM6DS3(uint8_t busType, uint8_t inputArg) : LSM6DS3Core(busType, input
 
     //FIFO control data
     settings.fifoThreshold = 2047;  //Can be 0 to 2047 (11 bits)
-    settings.fifoSampleRate = 10;  //default 10Hz
+    settings.fifoSampleRate = 10;  //default 12.5Hz.  Can be: 12(13), 26, 52, 104, 208, 416, 833, 1666, 3332, 6664, 13330; rounded legacy values 10, 25, 50, 100, 200, 400, 800, 1600, 3300, 6600 are also accepted
     settings.fifoModeWord = 0;  //Default off
 
     allOnesCounter = 0;
@@ -833,37 +833,58 @@ void LSM6DS3::fifoBegin(void) {
 
     //CONFIGURE FIFO_CTRL5
     uint8_t tempFIFO_CTRL5 = 0;
+    //Accept both the legacy rounded rates (10, 25, 50, 100, ...) and the exact
+    //datasheet ODRs (12.5, 26, 52, 104, ...), the same numbers used by
+    //settings.accelSampleRate and settings.gyroSampleRate, so all three
+    //settings can be given the same value.
     switch (settings.fifoSampleRate) {
-        default:  //set default case to 10Hz(slowest)
-        case 10:
+        default:  //set default case to 12.5Hz(slowest)
+        case 10:   //legacy rounded
+        case 12:   //12.5 truncated
+        case 13:   //12.5 rounded, matches accel/gyro convention
             tempFIFO_CTRL5 |= LSM6DS3_ACC_GYRO_ODR_FIFO_10Hz;
             break;
-        case 25:
+        case 25:   //legacy rounded
+        case 26:
             tempFIFO_CTRL5 |= LSM6DS3_ACC_GYRO_ODR_FIFO_25Hz;
             break;
-        case 50:
+        case 50:   //legacy rounded
+        case 52:
             tempFIFO_CTRL5 |= LSM6DS3_ACC_GYRO_ODR_FIFO_50Hz;
             break;
-        case 100:
+        case 100:  //legacy rounded
+        case 104:
             tempFIFO_CTRL5 |= LSM6DS3_ACC_GYRO_ODR_FIFO_100Hz;
             break;
-        case 200:
+        case 200:  //legacy rounded
+        case 208:
             tempFIFO_CTRL5 |= LSM6DS3_ACC_GYRO_ODR_FIFO_200Hz;
             break;
-        case 400:
+        case 400:  //legacy rounded
+        case 416:
             tempFIFO_CTRL5 |= LSM6DS3_ACC_GYRO_ODR_FIFO_400Hz;
             break;
-        case 800:
+        case 800:  //legacy rounded
+        case 833:
             tempFIFO_CTRL5 |= LSM6DS3_ACC_GYRO_ODR_FIFO_800Hz;
             break;
-        case 1600:
+        case 1600:  //legacy rounded
+        case 1660:  //matches accel/gyro convention
+        case 1666:
             tempFIFO_CTRL5 |= LSM6DS3_ACC_GYRO_ODR_FIFO_1600Hz;
             break;
-        case 3300:
+        case 3300:  //legacy rounded
+        case 3330:  //matches accel/gyro convention
+        case 3332:
             tempFIFO_CTRL5 |= LSM6DS3_ACC_GYRO_ODR_FIFO_3300Hz;
             break;
-        case 6600:
+        case 6600:  //legacy rounded
+        case 6660:  //matches accel/gyro convention
+        case 6664:
             tempFIFO_CTRL5 |= LSM6DS3_ACC_GYRO_ODR_FIFO_6600Hz;
+            break;
+        case 13330:
+            tempFIFO_CTRL5 |= LSM6DS3_ACC_GYRO_ODR_FIFO_13300Hz;
             break;
     }
     //Hard code the fifo mode here:
@@ -912,15 +933,13 @@ int16_t LSM6DS3::fifoRead(void) {
 
 uint16_t LSM6DS3::fifoGetStatus(void) {
     //Return some data on the state of the fifo
-    uint8_t tempReadByte = 0;
-    uint16_t tempAccumulator = 0;
-    readRegister(&tempReadByte, LSM6DS3_ACC_GYRO_FIFO_STATUS1);
-    tempAccumulator = tempReadByte;
-    readRegister(&tempReadByte, LSM6DS3_ACC_GYRO_FIFO_STATUS2);
-    tempAccumulator |= (tempReadByte << 8);
+    //FIFO_STATUS1 and FIFO_STATUS2 are consecutive registers: read both in a
+    //single transfer, so the 11-bit DIFF_FIFO count cannot change between the
+    //two byte reads (and it is one bus transaction instead of two).
+    uint8_t tempReadBytes[2] = {0, 0};
+    readRegisterRegion(tempReadBytes, LSM6DS3_ACC_GYRO_FIFO_STATUS1, 2);
 
-    return tempAccumulator;
-
+    return ((uint16_t)tempReadBytes[1] << 8) | tempReadBytes[0];
 }
 void LSM6DS3::fifoEnd(void) {
     // turn off the fifo
